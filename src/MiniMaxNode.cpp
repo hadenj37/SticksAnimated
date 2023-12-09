@@ -18,8 +18,8 @@ MiniMaxNode::MiniMaxNode() {
 MiniMaxNode::MiniMaxNode(bool isMax, State s, int level, string desc) {
 	max = isMax;
 	state = s;
-	int depth = level;
-	int utility = 0;
+	depth = level;
+	utility = 0;
 	label = desc;
 	children = {};
 }

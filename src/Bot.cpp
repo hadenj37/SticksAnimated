@@ -18,5 +18,5 @@ string Bot::makeMove(State currentState) {
 		}
 	}
 
-	return options.at(0)->getLabel(); // as a fallback
+	return ""; // shouldn't get here, but just in case, the bot will just never go.
 }

@@ -38,6 +38,7 @@ bool playerTurn;
 //bool takingInput;
 shared_ptr<Hand> playerRight;
 shared_ptr<Hand> playerLeft;
+Bot bot;
 shared_ptr<Hand> botRight;
 shared_ptr<Hand> botLeft;
 
@@ -55,56 +56,17 @@ static void error_callback(int error, const char *description)
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 }
 
-static void char_callback(GLFWwindow *window, unsigned int key)
-{
-	if (playerTurn) {
-		// j: select right hand
-		if (key == (unsigned int)'j' && playerLeft->getValue() > 0) {
-			playerRight->setState(Hand::selected);
-			playerLeft->setState(Hand::deselected);
-		}
-		// f: select left hand
-		if (key == (unsigned int)'f' && playerLeft->getValue() > 0) {
-			playerLeft->setState(Hand::selected);
-			playerRight->setState(Hand::deselected);
-		}
-		// t: attack across w/ left
-		if (key == (unsigned int)'t' && playerLeft->getState() == Hand::selected) {
-			playerLeft->setState(Hand::attackingAcross);
-			playerLeft->attack(*botLeft);
-		}
-		// e(or r?): attack forward w/ left
-		if (key == (unsigned int)'e' && playerLeft->getState() == Hand::selected) {
-			playerLeft->setState(Hand::attackingForward);
-			playerLeft->attack(*botRight);
-		}
-		// y: attack across w/ right
-		if (key == (unsigned int)'y' && playerRight->getState() == Hand::selected) {
-			playerRight->setState(Hand::attackingAcross);
-			playerRight->attack(*botRight);
-		}
-		// i(or u?): attack forward w/ right
-		if (key == (unsigned int)'i' && playerRight->getState() == Hand::selected) {
-			playerRight->setState(Hand::attackingForward);
-			playerRight->attack(*botLeft);
-		}
-		// space: bump
-		if (key == (unsigned int)' ') {
-			playerRight->setState(Hand::bumping);
-			playerLeft->setState(Hand::bumping);
-		}
-	}
-}
+
 
 static void cursor_position_callback(GLFWwindow* window, double xmouse, double ymouse)
 {
 	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-	if(state == GLFW_PRESS) {
+	if (state == GLFW_PRESS) {
 		camera->mouseMoved(xmouse, ymouse);
 	}
 }
@@ -117,27 +79,13 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	// Get current window size.
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
-	if(action == GLFW_PRESS) {
+	if (action == GLFW_PRESS) {
 		bool shift = mods & GLFW_MOD_SHIFT;
 		bool ctrl  = mods & GLFW_MOD_CONTROL;
 		bool alt   = mods & GLFW_MOD_ALT;
 		camera->mouseClicked(xmouse, ymouse, shift, ctrl, alt);
 	}
 }
-
-/*float sTOu(float s) {
-	//find table index
-	size_t index = 0;
-	while(index < usTable.size()){
-		if (s >= usTable.at(index).second) {
-			index++;
-		} else {
-			break;
-		}
-	}
-	float alpha = (s - usTable.at(index-1).second)/(usTable.at(index).second - usTable.at(index-1).second);
-	return (1-alpha)*usTable.at(index-1).first + alpha*usTable.at(index).first;
-}*/
 
 static void init(){
 	GLSL::checkVersion();
@@ -171,6 +119,7 @@ static void init(){
 
 	// Game
 	playerTurn = true;
+	bot = Bot(3);
 	//takingInput = false;
 
 	// Hands
@@ -252,12 +201,12 @@ void render(){
 	
 	// Clear buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	/*if(keyPresses[(unsigned)'c'] % 2) {
+	if (keyPresses[(unsigned)'c'] % 2) {
 		glEnable(GL_CULL_FACE);
 	} else {
 		glDisable(GL_CULL_FACE);
-	}*/glDisable(GL_CULL_FACE);
-	if(keyPresses[(unsigned)'z'] % 2) {
+	}
+	if (keyPresses[(unsigned)'z'] % 2) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	} else {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -342,41 +291,6 @@ void render(){
 		glVertex3f( gridSizeHalf, 0, z);
 	}
 	glEnd();
-	
-	/*if(showFrames){
-		//draw splines
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glBegin(GL_LINE_STRIP);
-		for (ucat = 0.0f; ucat <= (float)kframes.size() + 0.1f; ucat += 0.1f) {
-			G = mat4x3(kframes.at(((int)floor(ucat) - 1) % kframes.size()).getPosition(),
-				kframes.at(((int)floor(ucat)) % kframes.size()).getPosition(),
-				kframes.at(((int)floor(ucat) + 1) % kframes.size()).getPosition(),
-				kframes.at(((int)floor(ucat) + 2) % kframes.size()).getPosition());
-			u = ucat - (int)floor(ucat);
-			uvec = vec4(1.0f, u, u * u, u * u * u);
-			Pvec = G * (B * uvec);
-			glVertex3f(Pvec.x, Pvec.y, Pvec.z);
-		}
-		glEnd();
-
-		
-		//draw arc points
-		glPointSize(10.0f);
-		glBegin(GL_POINTS);
-		for (s = 0.0f; s < sMax; s += 0.4f) {
-			ucat = sTOu(s);
-			G = mat4x3(kframes.at(((int)floor(ucat) - 1) % kframes.size()).getPosition(),
-				kframes.at(((int)floor(ucat)) % kframes.size()).getPosition(),
-				kframes.at(((int)floor(ucat) + 1) % kframes.size()).getPosition(),
-				kframes.at(((int)floor(ucat) + 2) % kframes.size()).getPosition());
-			u = ucat - (int)floor(ucat);
-			uvec = vec4(1.0f, u, u * u, u * u * u);
-			Pvec = G * (B * uvec);
-			glVertex3f(Pvec.x, Pvec.y, Pvec.z);
-		}
-		glEnd();
-		
-	}*/
 
 	// Pop modelview matrix
 	glPopMatrix();
@@ -392,9 +306,331 @@ void render(){
 	GLSL::checkError(GET_FILE_LINE);
 }
 
+static void char_callback(GLFWwindow *window, unsigned int key)
+{
+	if (playerTurn) {
+		// j: select right hand
+		if (key == (unsigned int)'j' && playerLeft->getValue() > 0) {
+			playerRight->setState(Hand::selected);
+			playerLeft->setState(Hand::deselected);
+		}
+		// f: select left hand
+		if (key == (unsigned int)'f' && playerLeft->getValue() > 0) {
+			playerLeft->setState(Hand::selected);
+			playerRight->setState(Hand::deselected);
+		}
+		// t: attack across w/ left
+		if (key == (unsigned int)'t' && playerLeft->getState() == Hand::selected && (botLeft->getValue() > 0)) {
+			playerTurn = false;
+			playerLeft->setState(Hand::attackingAcross);
+			while (playerLeft->getUcat() < 1.5f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerLeft->attack(*botLeft);
+
+			// Reset to deselected after
+			while (playerLeft->getUcat() < 3.0f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerLeft->setState(Hand::deselected);
+		}
+		// e(or r?): attack forward w/ left
+		if (key == (unsigned int)'e' && playerLeft->getState() == Hand::selected && (botRight->getValue() > 0)) {
+			playerTurn = false;
+			playerLeft->setState(Hand::attackingForward);
+			while (playerLeft->getUcat() < 1.5f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerLeft->attack(*botRight);
+
+			// Reset to deselected after
+			while (playerLeft->getUcat() < 3.0f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerLeft->setState(Hand::deselected);
+		}
+		// y: attack across w/ right
+		if (key == (unsigned int)'y' && playerRight->getState() == Hand::selected && (botRight->getValue() > 0)) {
+			playerTurn = false;
+			playerRight->setState(Hand::attackingAcross);
+			while (playerRight->getUcat() < 1.5f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerRight->attack(*botRight);
+
+			// Reset to deselected after
+			while (playerRight->getUcat() < 3.0f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerRight->setState(Hand::deselected);
+		}
+		// i(or u?): attack forward w/ right
+		if (key == (unsigned int)'i' && playerRight->getState() == Hand::selected && (botLeft->getValue() > 0)) {
+			playerTurn = false;
+			playerRight->setState(Hand::attackingForward);
+			while (playerRight->getUcat() < 1.5f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerRight->attack(*botLeft);
+
+			// Reset to deselected after
+			while (playerRight->getUcat() < 3.0f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerRight->setState(Hand::deselected);
+		}
+		// spacebar: bump
+		if (key == (unsigned int)' ' && (( (playerLeft->getValue() == 0) && (playerRight->getValue() % 2 == 0) ) || ( (playerRight->getValue() == 0) && (playerLeft->getValue() % 2 == 0) )) ){
+			playerTurn = false;
+			playerRight->setState(Hand::bumping);
+			playerLeft->setState(Hand::bumping);
+			if (playerLeft->getValue() > 0) {
+				int newVal = playerLeft->getValue() / 2;
+				for (int i = 0; i < newVal; i++) {
+					playerLeft->countDown();
+					playerRight->countUp();
+				}
+			} else /* playerRight > 0 */{
+				int newVal = playerRight->getValue() / 2;
+				for (int i = 0; i < newVal; i++) {
+					playerRight->countDown();
+					playerLeft->countUp();
+				}
+			}
+
+			// Reset to deselected after
+			while (playerRight->getUcat() < 2.0f && !glfwWindowShouldClose(window)) {
+				if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+					// Render scene.
+					render();
+					// Swap front and back buffers.
+					glfwSwapBuffers(window);
+				}
+			}
+			playerLeft->setState(Hand::deselected);
+			playerRight->setState(Hand::deselected);
+		}
+
+		if (!playerTurn && (botRight->getValue() > 0 || botLeft->getValue() > 0)) {
+			// Bot turn
+			string botMove = bot.makeMove({ playerRight->getValue(),playerLeft->getValue(),botRight->getValue(),botLeft->getValue() });
+
+			if (botMove == "right across") {
+				//Select right
+				botRight->setState(Hand::selected);
+				while (botRight->getUcat() < 1.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+
+				botRight->setState(Hand::attackingAcross);
+				while (botRight->getUcat() < 1.5f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botRight->attack(*playerRight);
+
+				// Reset to deselected after
+				while (botRight->getUcat() < 3.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botRight->setState(Hand::deselected);
+			}
+			if (botMove == "right forward") {
+				//Select right
+				botRight->setState(Hand::selected);
+				while (botRight->getUcat() < 1.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+
+				botRight->setState(Hand::attackingForward);
+				while (botRight->getUcat() < 1.5f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botRight->attack(*playerLeft);
+
+				// Reset to deselected after
+				while (botRight->getUcat() < 3.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botRight->setState(Hand::deselected);
+			}
+			if (botMove == "left across") {
+				//Select left
+				botLeft->setState(Hand::selected);
+				while (botLeft->getUcat() < 1.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+
+				botLeft->setState(Hand::attackingAcross);
+				while (botLeft->getUcat() < 1.5f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botLeft->attack(*playerLeft);
+
+				// Reset to deselected after
+				while (botLeft->getUcat() < 3.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botLeft->setState(Hand::deselected);
+			}
+			if (botMove == "left forward") {
+				//Select left
+				botLeft->setState(Hand::selected);
+				while (botLeft->getUcat() < 1.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+
+				botLeft->setState(Hand::attackingForward);
+				while (botLeft->getUcat() < 1.5f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botLeft->attack(*playerRight);
+
+				// Reset to deselected after
+				while (botLeft->getUcat() < 3.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botLeft->setState(Hand::deselected);
+			}
+			if (botMove == "bump") {
+				botRight->setState(Hand::bumping);
+				botLeft->setState(Hand::bumping);
+				if (botLeft->getValue() > 0) {
+					int newVal = botLeft->getValue() / 2;
+					for (int i = 0; i < newVal; i++) {
+						botLeft->countDown();
+						botRight->countUp();
+					}
+				}
+				else /* playerRight > 0 */ {
+					int newVal = (int)(botRight->getValue() / 2);
+					for (int i = 0; i < newVal; i++) {
+						botRight->countDown();
+						botLeft->countUp();
+					}
+				}
+
+				// Reset to deselected after
+				while (botRight->getUcat() < 2.0f && !glfwWindowShouldClose(window)) {
+					if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+						// Render scene.
+						render();
+						// Swap front and back buffers.
+						glfwSwapBuffers(window);
+					}
+				}
+				botLeft->setState(Hand::deselected);
+				botRight->setState(Hand::deselected);
+			}
+
+			if ((playerLeft->getValue() > 0) || (playerRight->getValue() > 0))
+				playerTurn = true;
+		}
+	}
+}
+
 int main(int argc, char **argv)
 {
-	if(argc < 2) {
+	if (argc < 2) {
 		cout << "Please specify the resource directory." << endl;
 		return 0;
 	}
@@ -403,12 +639,12 @@ int main(int argc, char **argv)
 	// Set error callback.
 	glfwSetErrorCallback(error_callback);
 	// Initialize the library.
-	if(!glfwInit()) {
+	if (!glfwInit()) {
 		return -1;
 	}
 	// Create a windowed mode window and its OpenGL context.
 	window = glfwCreateWindow(1920, 1080, "Sticks", NULL, NULL);
-	if(!window) {
+	if (!window) {
 		glfwTerminate();
 		return -1;
 	}
@@ -416,7 +652,7 @@ int main(int argc, char **argv)
 	glfwMakeContextCurrent(window);
 	// Initialize GLEW.
 	glewExperimental = true;
-	if(glewInit() != GLEW_OK) {
+	if (glewInit() != GLEW_OK) {
 		cerr << "Failed to initialize GLEW" << endl;
 		return -1;
 	}
@@ -437,7 +673,7 @@ int main(int argc, char **argv)
 	init();
 	// Loop until the user closes the window.
 	while(!glfwWindowShouldClose(window)) {
-		if(!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+		if (!glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
 			// Render scene.
 			render();
 			// Swap front and back buffers.
