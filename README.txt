@@ -1,11 +1,5 @@
-Haden Johnson | 330004371 | hadenj37@tamu.edu
-tMax = 10
-No bonus tasks done, 5/6 tasks done (all except 5)
+Final project for CSCE 450: Computer Animation
 
-Custom time control restraints:
-"s" = sNorm
-"t" = tNorm
-s(0) = 1
-s(1) = 1
-s(0.5) = 0
-s'(0.5) = 0
+Skeleton code provided by Shinjiro Sueda
+
+The project is a one-player simulation of the game "Chopsticks" using OpenGL, keyframing, the minimax search algorithm.
