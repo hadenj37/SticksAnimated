@@ -34,6 +34,7 @@ public:
 		uCat = 0;
 		u = 0;
 	}
+	float getUcat() { return uCat; }
 	int getValue() { return fingersUp; }
 	int getState() { return currentState; }
 	void setState(States newState);

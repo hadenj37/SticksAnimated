@@ -106,7 +106,7 @@ void Hand::drawHand(shared_ptr<MatrixStack> MV, const shared_ptr<Program> drawPr
 				  curveframes.at(std::min(uFloor + 2, (int)(curveframes.size()-1))).getQuaternion().z,
 				  curveframes.at(std::min(uFloor + 2, (int)(curveframes.size()-1))).getQuaternion().w));
 	//check dot products
-	for (int column = 0; column < 3; column++) {
+	for(int column = 0; column < 3; column++) {
 		if (glm::dot(E[column], E[column + 1]) < 0) {
 			E[column+1] = -E[column+1];
 		}
@@ -325,7 +325,7 @@ void Hand::setState(States newState) {
 		curveframes.clear();
 		switch (newState) {
 		case deselected:
-			if(currentState == selected) this->resetU();
+			if (currentState == selected) this->resetU();
 			curveframes.push_back(keyframes.at(2));
 			curveframes.push_back(keyframes.at(0));
 			break;
