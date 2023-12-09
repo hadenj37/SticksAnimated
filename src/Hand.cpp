@@ -37,15 +37,14 @@ Hand::Hand(bool lefty) {
 	// Rest position
 	keyframes.push_back(Keyframe(vec3(0.0f, 0.0f, 0.0f), glm::angleAxis(0.0f, vec3(0.0f, 1.0f, 0.0f)))); // 0
 	// Bump
-	keyframes.push_back(Keyframe(vec3(-10.0f, 0.0f, 0.0f), glm::angleAxis(0.0f, vec3(0.0f, 1.0f, 0.0f)))); // 1
+	keyframes.push_back(Keyframe(vec3(-5.0f, 0.0f, 0.0f), glm::angleAxis(0.0f, vec3(0.0f, 1.0f, 0.0f)))); // 1
 	//Attack Forward
 	keyframes.push_back(Keyframe(vec3(0.0f, 2.0f, 0.0f), glm::angleAxis(0.0f, vec3(0.0f, 1.0f, 0.0f)))); // Rise: 2
-	keyframes.push_back(Keyframe(vec3(0.0f, 3.0f, -10.0f), glm::angleAxis(0.0f, vec3(0.0f, 1.0f, 0.0f)))); // Above target: 3
-	keyframes.push_back(Keyframe(vec3(0.0f, -1.0f, -10.0f), glm::angleAxis(0.0f, vec3(0.0f, 1.0f, 0.0f)))); // Follow through: 4
+	keyframes.push_back(Keyframe(vec3(0.0f, 3.0f, -9.0f), glm::angleAxis((float)M_PI/4, vec3(1.0f, 0.0f, 0.0f)))); // Above target: 3
+	keyframes.push_back(Keyframe(vec3(0.0f, -1.0f, -9.0f), glm::angleAxis(-(float)M_PI/4, vec3(1.0f, 0.0f, 0.0f)))); // Follow through: 4
 	//Attack Across
-	//keyframes.push_back(Keyframe(vec3(0.0f, 2.0f, 0.0f), glm::angleAxis(mirrorFactor*(float)M_PI/4, vec3(0.0f, 1.0f, 0.0f)))); // Rise: 5
-	keyframes.push_back(Keyframe(vec3(-10.0f, 3.0f, -10.0f), glm::angleAxis(mirrorFactor*(float)M_PI/4, vec3(0.0f, 1.0f, 0.0f)))); // Above target: 6
-	keyframes.push_back(Keyframe(vec3(-10.0f, -1.0f, -10.0f), glm::angleAxis(mirrorFactor*(float)M_PI/4, vec3(0.0f, 1.0f, 0.0f)))); // Follow through: 7
+	keyframes.push_back(Keyframe(vec3(-8.5f, 3.0f, -10.0f), glm::angleAxis(mirrorFactor*(float)M_PI/4, vec3(0.0f, 1.0f, 0.0f))*keyframes.at(3).getQuaternion())); // Above target: 5
+	keyframes.push_back(Keyframe(vec3(-8.5f, -1.0f, -10.0f), glm::angleAxis(mirrorFactor*(float)M_PI/4, vec3(0.0f, 1.0f, 0.0f))*keyframes.at(4).getQuaternion())); // Follow through: 6
 	
 	// Set default curve
 	curveframes = {};
@@ -118,7 +117,7 @@ void Hand::drawHand(shared_ptr<MatrixStack> MV, const shared_ptr<Program> drawPr
 	//- Palm -//
 	// Start from world origin
 	MV->pushMatrix();
-		MV->translate(mirrorFactor*13,0,15); // To hand origin
+		MV->translate(mirrorFactor*10,0,12); // To hand origin
 		MV->translate(Pvec);
 		MV->multMatrix(interpRotation);
 		MV->pushMatrix();
@@ -268,17 +267,17 @@ void Hand::drawHand(shared_ptr<MatrixStack> MV, const shared_ptr<Program> drawPr
 		// Thumb
 		MV->pushMatrix();
 			// Base segment
-			MV->translate(-3.0f*mirrorFactor, 0.0f, 2.0f); // To knuckle (rotation point)
+			MV->translate(-3.0f*mirrorFactor, 0.0f, 2.5f); // To knuckle (rotation point)
 			MV->rotate(mirrorFactor*(float)M_PI/8, vec3(0.0f, 1.0f, 0.0f)); // rotate
-			MV->translate(0.0f,0.0f,-1.0f); // To center
+			MV->translate(0.0f,0.0f,-2.0f); // To center
 			MV->pushMatrix();
-				//MV->scale(2.0f,2.0f,4.0f);
+				MV->scale(1.0f,1.0f,1.5f);
 				glUniformMatrix4fv(drawProg->getUniform("MV"), 1, GL_FALSE, glm::value_ptr(MV->topMatrix()));
 				glUniformMatrix4fv(drawProg->getUniform("MVit"), 1, GL_FALSE, glm::value_ptr(inverse(transpose(MV->topMatrix()))));
 				fingerModel->draw(drawProg);
 			MV->popMatrix();
 			// Middle segment
-			MV->translate(0.0f,0.0f,-1.0f); // To joint
+			MV->translate(0.0f,0.0f,-2.0f); // To joint
 			MV->rotate(-mirrorFactor*(float)M_PI/8, vec3(0.0f, 1.0f, 0.0f)); // rotate
 			MV->rotate(-(float)M_PI/2, vec3(1.0f, 0.0f, 0.0f)); // rotate
 			MV->translate(0.0f,0.0f,-1.0f); // To center
