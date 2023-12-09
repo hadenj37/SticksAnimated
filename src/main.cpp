@@ -35,7 +35,7 @@ shared_ptr<Camera> camera;
 float t0;
 
 bool playerTurn;
-bool takingInput;
+//bool takingInput;
 shared_ptr<Hand> playerRight;
 shared_ptr<Hand> playerLeft;
 shared_ptr<Hand> botRight;
@@ -62,41 +62,42 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 
 static void char_callback(GLFWwindow *window, unsigned int key)
 {
-	// if (playerTurn &/or takingInput)
-	// j: select right hand
-	if (key == (unsigned int)'j' && playerLeft->getValue() > 0) {
-		playerRight->setState(Hand::selected);
-		playerLeft->setState(Hand::deselected);
-	}
-	// f: select left hand
-	if (key == (unsigned int)'f' && playerLeft->getValue() > 0) {
-		playerLeft->setState(Hand::selected);
-		playerRight->setState(Hand::deselected);
-	}
-	// t: attack across w/ left
-	if (key == (unsigned int)'t' && playerLeft->getState() == Hand::selected) {
-		playerLeft->setState(Hand::attackingAcross);
-		playerLeft->attack(*botLeft);
-	}
-	// e(or r?): attack forward w/ left
-	if (key == (unsigned int)'e' && playerLeft->getState() == Hand::selected) {
-		playerLeft->setState(Hand::attackingForward);
-		playerLeft->attack(*botRight);
-	}
-	// y: attack across w/ right
-	if (key == (unsigned int)'y' && playerRight->getState() == Hand::selected) {
-		playerRight->setState(Hand::attackingAcross);
-		playerRight->attack(*botRight);
-	}
-	// i(or u?): attack forward w/ right
-	if (key == (unsigned int)'i' && playerRight->getState() == Hand::selected) {
-		playerRight->setState(Hand::attackingForward);
-		playerRight->attack(*botLeft);
-	}
-	// space: bump
-	if (key == (unsigned int)' ') {
-		playerRight->setState(Hand::bumping);
-		playerLeft->setState(Hand::bumping);
+	if (playerTurn) {
+		// j: select right hand
+		if (key == (unsigned int)'j' && playerLeft->getValue() > 0) {
+			playerRight->setState(Hand::selected);
+			playerLeft->setState(Hand::deselected);
+		}
+		// f: select left hand
+		if (key == (unsigned int)'f' && playerLeft->getValue() > 0) {
+			playerLeft->setState(Hand::selected);
+			playerRight->setState(Hand::deselected);
+		}
+		// t: attack across w/ left
+		if (key == (unsigned int)'t' && playerLeft->getState() == Hand::selected) {
+			playerLeft->setState(Hand::attackingAcross);
+			playerLeft->attack(*botLeft);
+		}
+		// e(or r?): attack forward w/ left
+		if (key == (unsigned int)'e' && playerLeft->getState() == Hand::selected) {
+			playerLeft->setState(Hand::attackingForward);
+			playerLeft->attack(*botRight);
+		}
+		// y: attack across w/ right
+		if (key == (unsigned int)'y' && playerRight->getState() == Hand::selected) {
+			playerRight->setState(Hand::attackingAcross);
+			playerRight->attack(*botRight);
+		}
+		// i(or u?): attack forward w/ right
+		if (key == (unsigned int)'i' && playerRight->getState() == Hand::selected) {
+			playerRight->setState(Hand::attackingForward);
+			playerRight->attack(*botLeft);
+		}
+		// space: bump
+		if (key == (unsigned int)' ') {
+			playerRight->setState(Hand::bumping);
+			playerLeft->setState(Hand::bumping);
+		}
 	}
 }
 
@@ -170,7 +171,7 @@ static void init(){
 
 	// Game
 	playerTurn = true;
-	takingInput = false;
+	//takingInput = false;
 
 	// Hands
 	playerRight = make_shared<Hand>(false);
@@ -227,7 +228,7 @@ static void init(){
 void render(){
 	// Update time & parameter(s)
 	// Update time.
-	float t1 = glfwGetTime();
+	double t1 = glfwGetTime();
 	float dt = (t1 - t0);
 	//t += dt;
 	t0 = t1;
