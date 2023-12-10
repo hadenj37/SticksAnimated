@@ -11,22 +11,22 @@
     <div id="top-bar" class="h-fit w-full bg-red-800 text-center mb-2">
         <h1 id="title" class="text-3xl font-bold py-2 text-white font-mono">CSCE 450 Final Project: Chopsticks Animated</h1>
         <h3 class="text-large my-0 font-bold text-white font-mono">made by Haden Johnson</h3>
-        <h3 class="text-large my-0 font-bold text-white font-mono">Instructor: Shinjiro Sueda</h3>
+        <h3 class="text-large my-0 font-bold text-white font-mono">Instructor: Dr. Shinjiro Sueda</h3>
     </div>
 
-    <div id="overview-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%;">
+    <div id="overview-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%; margin-top: 1rem; margin-bottom: 1rem;">
         <h2 class="text-xl font-bold text-black font-mono">Project Overview</h2>
         <p class="whitespace-normal font-mono">
             For my final project, I decided to virtualize the game, Chopsticks, in order to combine the keyframing
             techniques I learned from this class with concepts from my artificial intelligence course (CSCE 420). 
             After starting the program, the user/player uses the keyboard to input what hands they are using and targeting.
             Once the player makes a move, the computer opponent uses the minimax search algorithm to decide what move to make. 
-            In order to conserve resources, I limit the search to a depth of 3 by default, but this can be changed when constructing the bot class.
-            The computer is still challenging to defeat with this limitation, even after going first.
+            In order to conserve resources, I limit the search to a depth of 3 by default.
+            The computer is still challenging to defeat with this limitation.
         </p>
     </div>
     <hr class="w-4/5 h-px bg-neutral-50 my-4" style="margin-left: 10%; border-radius: 2px; border-color: black;">
-    <div id="how-to-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%;">
+    <div id="how-to-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%; margin-top: 1rem; margin-bottom: 1rem;">
         <h2 class="text-xl font-bold text-black font-mono">Rules of the Game</h2>
         <p class="whitespace-normal font-mono">
             There are several variants of Chopsticks. I simply implimented the rules that I am most accustomed to playing with.
@@ -47,10 +47,41 @@
         </p>
     </div>
     <hr class="w-4/5 h-px bg-neutral-50 my-4" style="margin-left: 10%; border-radius: 2px; border-color: black;">
-    <div id="implementation-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%;">
+    <div id="implementation-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%; margin-top: 1rem; margin-bottom: 1rem;">
         <h2 class="text-xl font-bold text-black font-mono">Implementation</h2>
         <p class="whitespace-normal font-mono">
             First, I used my submission from the keyframing assignment as a starting point.
+            I implemented classes for the hands and fingers, which store and calculate game and model transformation data.
+            Most of the calculation happens in the hand class, which stores and dynamically sequences the keyframes that the hand's model should follow.
+            Since the hands are visually identical, I only needed to create keyframes relative to one hand's model and scale or rotate the other hands as necessary before transforming them with the keyframe data.
+        </p>
+        <br>
+        <p class="whitespace-normal font-mono">
+            After adding the keyframes, I implemented the keyboard input through the provided char_callback() function to test them.
+            Once the animations were working, I began work on input handling so that the user/player's input would only be considered if it was a valid input for gameplay.
+            Next, I implemented the bot and minimax node classes. 
+            The bot class uses minimax search (down to its specefied maximum depth) to determine what move to make and produces a string that denotes its move for the program to handle.
+        </p>
+        <br>
+        <p class="whitespace-normal font-mono">
+            Minimax search involves a search tree, where each node represents a game-state, and each node's children represent states that can be reached from that node's state.
+            Each node also has a utility value, which represents how desireable its state is for the searching player.
+            Typically, a node's utility is zero if it is not a terminal state, and terminal nodes' utilities are positive or negative one, depending on which player wins.
+            Once the tree is generated, the leaves' utility values are propogated up the tree.
+            Each node is either a "max" node or a "min" node.
+            Max nodes receive the maximum utility of their children and represent turns of the searching player.
+            Min nodes receive the minimum utility of their children and represent the turns of the searching player's opponent.
+            This minimum-maximum structure reveals what state the game will end at, assuming both players play optimally.
+        </p>
+        <br>
+        <p class="whitespace-normal font-mono">
+            Since I limited the depth of the search tree, to avoid having the computer choose between a bunch of zero-utility states, I altered the utility heuristic.
+            Non-terminal nodes receive a utility equal to the sum of the computer's raised fingers minus the sum of the player's raised fingers. 
+            Terminal nodes receive a utility of positive or negative one-hundred, depending on who won.
+        </p>
+        <br>
+        <p class="whitespace-normal font-mono">
+            I modeled the hands using OpenSCAD, and used MeshLab to convert them from .stl format to .obj format.
         </p>
     </div>
 </body>
