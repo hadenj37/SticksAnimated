@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Chopsticks Animated</title>
+</head>
+<body class="bg-neutral-100 place-content-center">
+    <div id="top-bar" class="h-fit w-full bg-red-800 text-center mb-2">
+        <h1 id="title" class="text-3xl font-bold py-2 text-white font-mono">CSCE 450 Final Project: Chopsticks Animated</h1>
+        <h3 class="text-large my-0 font-bold text-white font-mono">made by Haden Johnson</h3>
+        <h3 class="text-large my-0 font-bold text-white font-mono">Instructor: Shinjiro Sueda</h3>
+    </div>
+
+    <div id="overview-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%;">
+        <h2 class="text-xl font-bold text-black font-mono">Project Overview</h2>
+        <p class="whitespace-normal font-mono">
+            For my final project, I decided to virtualize the game, Chopsticks, in order to combine the keyframing
+            techniques I learned from this class with concepts from my artificial intelligence course (CSCE 420). 
+            After starting the program, the user/player uses the keyboard to input what hands they are using and targeting.
+            Once the player makes a move, the computer opponent uses the minimax search algorithm to decide what move to make. 
+            In order to conserve resources, I limit the search to a depth of 3 by default, but this can be changed when constructing the bot class.
+            The computer is still challenging to defeat with this limitation, even after going first.
+        </p>
+    </div>
+    <hr class="w-4/5 h-px bg-neutral-50 my-4" style="margin-left: 10%; border-radius: 2px; border-color: black;">
+    <div id="how-to-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%;">
+        <h2 class="text-xl font-bold text-black font-mono">Rules of the Game</h2>
+        <p class="whitespace-normal font-mono">
+            There are several variants of Chopsticks. I simply implimented the rules that I am most accustomed to playing with.
+        </p>
+        <br>
+        <p class="whitespace-normal font-bold font-mono">
+            Here's how the game works:
+        </p>
+        <p class="whitespace-normal font-mono">
+            Each player starts the game holding up only thier index finger on each hand.
+            On thier turn, a player taps their opponent's hand. 
+            The opponent raises as many fingers on their tapped hand as were raised on the hand that the acting player tapped it with.
+            If the number of fingers they need to raise exceeds the five fingers they have on their hand, they start back over at one.
+            If an attacked hand ends up with exactly five fingers raised, that player must lower all the fingers on that hand. It can no longer attack or be attacked.
+            The most controversy (in my experience) comes with the next rule: 
+            instead of attacking, for their turn, a player with one inactive hand and a hand with an even number of raised fingers may bump their hands together and evenly divide the raised fingers between their hands, reviving their dead hand.
+            When both of a player's hands are rendered inactive, they lose.
+        </p>
+    </div>
+    <hr class="w-4/5 h-px bg-neutral-50 my-4" style="margin-left: 10%; border-radius: 2px; border-color: black;">
+    <div id="implementation-section" class="h-fit w-3/4 bg-neutral-50" style="margin-left: 12.5%; margin-right: 12.5%;">
+        <h2 class="text-xl font-bold text-black font-mono">Implementation</h2>
+        <p class="whitespace-normal font-mono">
+            First, I used my submission from the keyframing assignment as a starting point.
+        </p>
+    </div>
+</body>
+</html>
