@@ -113,10 +113,10 @@ static void init(){
 	bot = Bot(3);
 	
 	// Hands
-	playerRight = make_shared<Hand>(false);
-	playerLeft = make_shared<Hand>(true);
-	botRight = make_shared<Hand>(false);
-	botLeft = make_shared<Hand>(true);
+	playerRight = make_shared<Hand>(RESOURCE_DIR, false);
+	playerLeft = make_shared<Hand>(RESOURCE_DIR, true);
+	botRight = make_shared<Hand>(RESOURCE_DIR, false);
+	botLeft = make_shared<Hand>(RESOURCE_DIR, true);
 
 	playerRight->updateFingerVals();
 	playerLeft->updateFingerVals();
@@ -137,15 +137,10 @@ void restart() {
 	bot = Bot(3);
 
 	// Hands
-	playerRight = make_shared<Hand>(false);
-	playerLeft = make_shared<Hand>(true);
-	botRight = make_shared<Hand>(false);
-	botLeft = make_shared<Hand>(true);
-
-	playerRight->updateFingerVals();
-	playerLeft->updateFingerVals();
-	botRight->updateFingerVals();
-	botLeft->updateFingerVals();
+	playerRight->reset();
+	playerLeft->reset();
+	botRight->reset();
+	botLeft->reset();
 
 	// Initialize time
 	glfwSetTime(0.0);

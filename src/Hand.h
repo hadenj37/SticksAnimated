@@ -14,7 +14,7 @@ class Hand {
 public:
 	enum States {deselected = 0, selected, attackingForward, attackingAcross, bumping};
 	Hand();
-	Hand(bool lefty = false);
+	Hand(std::string resourceDir ,bool lefty = false);
 	virtual ~Hand() {}
 	void drawHand(shared_ptr<MatrixStack> MV, const std::shared_ptr<Program> drawProg);
 	void countUp();
@@ -41,6 +41,7 @@ public:
 	//void playAnim(States newState);
 	void updateFingerVals();
 	void updateFingerModels(float t);
+	void reset();
 
 private:
 	bool left;
@@ -48,15 +49,12 @@ private:
 	float u = 0.0f; // middle u
 	float uCat = 0.0f; // Big u
 
-	glm::vec3 position;
 	States currentState = deselected;
 	std::vector<Finger> fingers;
 	std::vector<Keyframe> keyframes;
 	std::vector<Keyframe> curveframes;
 	std::shared_ptr<Shape> handModel;
 	std::shared_ptr<Shape> fingerModel;
-	//std::shared_ptr<Program> drawProgram;
-
 };
 
 #endif

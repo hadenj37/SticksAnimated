@@ -4,6 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
+#include <string>
 #include <memory>
 #include <stdexcept>
 #include <iostream>
@@ -15,12 +16,11 @@ Hand::Hand() {
 	throw std::logic_error("Default not designed to be used at present");
 }
 
-Hand::Hand(bool lefty) {
+Hand::Hand(string resourceDir, bool lefty) {
 	left = lefty;
 	fingersUp = 1;
 	u = 0.0f;
 	uCat = 0.0f;
-	Hand* target = nullptr;
 	currentState = deselected;
 	
 	// Make fingers
@@ -53,13 +53,11 @@ Hand::Hand(bool lefty) {
 
 	// Load model(s)
 	handModel = make_shared<Shape>();
-	handModel->loadMesh("../resources/handbase.obj");
-	//handModel->fitToUnitBox();
+	handModel->loadMesh(resourceDir + "handbase.obj");
 	handModel->init();
 
 	fingerModel = make_shared<Shape>();
-	fingerModel->loadMesh("../resources/fingersegment.obj");
-	//fingerModel->fitToUnitBox();
+	fingerModel->loadMesh(resourceDir + "fingersegment.obj");
 	fingerModel->init();
 }
 
@@ -376,5 +374,16 @@ void Hand::updateFingerModels(float t) {
 	for (int i = 0 ; i < fingers.size(); i++) {
 		fingers.at(i).updateU(t);
 		fingers.at(i).updateModel();
+	}
+}
+
+void Hand::reset() {
+	fingersUp = 1;
+	u = 0.0f;
+	uCat = 0.0f;
+	setState(deselected);
+	updateFingerVals();
+	for (int i = 0 ; i < fingers.size(); i++) {
+		fingers.at(i).setU((i==0? 1.0f : 0.0f));
 	}
 }
