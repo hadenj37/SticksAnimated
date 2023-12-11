@@ -267,17 +267,17 @@ void Hand::drawHand(shared_ptr<MatrixStack> MV, const shared_ptr<Program> drawPr
 			// Base segment
 			MV->translate(-3.0f*mirrorFactor, 0.0f, 2.5f); // To knuckle (rotation point)
 			MV->rotate(mirrorFactor*(float)M_PI/8, vec3(0.0f, 1.0f, 0.0f)); // rotate
-			MV->translate(0.0f,0.0f,-2.0f); // To center
+			MV->translate(0.0f,0.0f,-1.0f); // To center
 			MV->pushMatrix();
-				MV->scale(1.0f,1.0f,1.5f);
+				//MV->scale(2.0f,2.0f,4.0f);
 				glUniformMatrix4fv(drawProg->getUniform("MV"), 1, GL_FALSE, glm::value_ptr(MV->topMatrix()));
 				glUniformMatrix4fv(drawProg->getUniform("MVit"), 1, GL_FALSE, glm::value_ptr(inverse(transpose(MV->topMatrix()))));
 				fingerModel->draw(drawProg);
 			MV->popMatrix();
 			// Middle segment
-			MV->translate(0.0f,0.0f,-2.0f); // To joint
+			MV->translate(0.0f,0.0f,-1.0f); // To joint
 			MV->rotate(-mirrorFactor*(float)M_PI/8, vec3(0.0f, 1.0f, 0.0f)); // rotate
-			MV->rotate(-(float)M_PI/2, vec3(1.0f, 0.0f, 0.0f)); // rotate
+			MV->rotate(-(float)M_PI/8, vec3(1.0f, 0.0f, 0.0f)); // rotate
 			MV->translate(0.0f,0.0f,-1.0f); // To center
 			MV->pushMatrix();
 				//MV->scale(2.0f,2.0f,4.0f);
@@ -287,6 +287,7 @@ void Hand::drawHand(shared_ptr<MatrixStack> MV, const shared_ptr<Program> drawPr
 			MV->popMatrix();
 			// Fingertip
 			MV->translate(0.0f,0.0f,-1.0f); // To joint
+			MV->rotate(-3*(float)M_PI/8, vec3(1.0f, 0.0f, 0.0f)); // rotate
 			MV->rotate(-mirrorFactor*(float)M_PI/2, vec3(0.0f,1.0f,0.0f)); // rotate
 			MV->translate(0.0f,0.0f,-1.0f); // To center
 			MV->pushMatrix();
